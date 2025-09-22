@@ -257,10 +257,17 @@ class OptimizationSolver : protected EnvObj
 
   /**
    * Returns the objectives after checkOpt is called
-   * @return a vector of Optimization Result,
+   * @return a vector of Optimization Result as string,
    *   each containing the outcome and the value.
    **/
   std::string getObjectives();
+
+  /**
+   * Returns the objectives after checkOpt is called
+   * @return a vector of Optimization Result as a pair <objective, value>
+   *   each containing the outcome and the value.
+   **/
+  std::vector<std::pair<OptimizationObjective, OptimizationResult>> getObjectiveResults();
 
     /**
    * Returns whether the objectives are available

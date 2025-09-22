@@ -1,0 +1,6 @@
+setuptools
+Cython>=3.0.0
+pytest
+scikit-build
+pyparsing
+toml

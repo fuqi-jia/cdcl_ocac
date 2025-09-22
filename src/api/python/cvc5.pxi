@@ -22,6 +22,8 @@ from cvc5 cimport DatatypeDecl as c_DatatypeDecl
 from cvc5 cimport DatatypeSelector as c_DatatypeSelector
 from cvc5 cimport Result as c_Result
 from cvc5 cimport SynthResult as c_SynthResult
+from cvc5 cimport OptimizationObjective as c_OptimizationObjective
+from cvc5 cimport OptimizationResult as c_OptimizationResult
 from cvc5 cimport Op as c_Op
 from cvc5 cimport OptionInfo as c_OptionInfo
 from cvc5 cimport holds as c_holds
@@ -806,6 +808,101 @@ cdef class SynthResult:
     def __repr__(self):
         return self.cr.toString().decode()
 
+cdef class OptimizationObjective:
+    """
+        Encapsulation of an optimization objective.
+
+        Wrapper class for :cpp:class:`cvc5::OptimizationObjective`.
+    """
+    cdef c_OptimizationObjective co
+    cdef Solver solver
+    def __cinit__(self, solver):
+        self.co = c_OptimizationObjective()
+        self.solver = solver
+
+    def getTarget(self):
+        """
+            :return: The optimization objective.
+        """
+        cdef Term t = Term(self.solver)
+        t.cterm = self.co.getTarget()
+        return t
+
+    def bvIsSigned(self):
+        """
+            :return: True if the optimization objective is a signed bitvector.
+        """
+        return self.co.bvIsSigned()
+
+    def isMinimize(self):
+        """
+            :return: True if the optimization objective type is 'minimize'.
+        """
+        return self.co.isMinimize()
+
+    def isMaximize(self):
+        """
+            :return: True if the optimization objective type is 'maximize'.
+        """
+        return self.co.isMaximize()
+
+cdef class OptimizationResult:
+    """
+        Encapsulation of an optimization result.
+
+        Wrapper class for :cpp:class:`cvc5::OptimizationResult`.
+    """
+    cdef c_OptimizationResult cr
+    cdef Solver solver
+    def __cinit__(self, solver):
+        self.cr = c_OptimizationResult()
+        self.solver = solver
+
+    def getResult(self):
+        """
+            :return: the optimization result.
+        """
+        cdef Result r = Result()
+        r.cr = self.cr.getResult()
+        return r
+
+    def getValue(self):
+        """
+            :return: the optimal value.
+        """
+        cdef Term t = Term(self.solver)
+        t.cterm = self.cr.getValue()
+        return t
+
+    def isPosInfinity(self):
+        """
+            :return: True if the optimal value is (+ oo).
+        """
+        return self.cr.isPosInfinity()
+
+    def isNegInfinity(self):
+        """
+            :return: True if the optimal value is (- oo).
+        """
+        return self.cr.isNegInfinity()
+
+    def isPosApprox(self):
+        """
+            :return: True if the optimal value is (+ <value> eps).
+        """
+        return self.cr.isPosApprox()
+
+    def isNegApprox(self):
+        """
+            :return: True if the optimal value is (- <value> eps).
+        """
+        return self.cr.isNegApprox()
+
+    def isFinite(self):
+        """
+            :return: True if the optimal value is finite.
+        """
+        return self.cr.isFinite()
 
 cdef class Solver:
     """
@@ -1732,6 +1829,71 @@ cdef class Solver:
             :param term: The formula to assert.
         """
         self.csolver.assertFormula(term.cterm)
+
+    def maximizeFormula(self, Term term):
+        """
+            Maximize a formula.
+
+            SMT-LIB:
+
+            .. code-block:: smtlib
+
+                ( maximize <term> )
+
+            :param term: The formula to maximize.
+        """
+        self.csolver.maximizeFormula(term.cterm)
+
+    def minimizeFormula(self, Term term):
+        """
+            Minimize a formula.
+
+            SMT-LIB:
+
+            .. code-block:: smtlib
+
+                ( minimize <term> )
+
+            :param term: The formula to minimize.
+        """
+        self.csolver.minimizeFormula(term.cterm)
+
+    def getObjectives(self):
+        """
+            Get the objectives' status.
+
+            SMT-LIB:
+
+            .. code-block:: smtlib
+
+                ( get-objectives <term> )
+
+            :return: A string representation of objectives' status.
+        """
+        return self.csolver.getObjectives()
+
+    def getObjectiveResults(self):
+        """
+            Get the objectives' status in a structured way.
+
+            :return: A list of pairs <:py:class:`OptimizationObjective`, <:py:class:`OptimizationResult`>.
+        """
+        cdef OptimizationObjective py_objective
+        cdef OptimizationResult py_result
+        result_list = []
+
+        for c_pair in self.csolver.getObjectiveResults():
+            py_objective = OptimizationObjective(self)
+            py_objective.co = c_pair.first
+
+            py_result = OptimizationResult(self)
+            py_result.cr = c_pair.second
+
+            python_pair = (py_objective, py_result)
+            result_list.append(python_pair)
+
+        return result_list
+
 
     def checkSat(self):
         """

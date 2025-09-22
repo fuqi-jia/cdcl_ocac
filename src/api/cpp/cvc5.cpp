@@ -34,6 +34,7 @@
 
 #include <cstring>
 #include <sstream>
+#include <utility>
 
 #include "api/cpp/cvc5_checks.h"
 #include "base/check.h"
@@ -2877,6 +2878,57 @@ Term::const_iterator Term::end() const
   }
   return Term::const_iterator(d_nm, d_node, endpos);
 }
+
+OptimizationObjective::OptimizationObjective() : d_objective(nullptr) {}
+OptimizationObjective::OptimizationObjective(
+    const internal::smt::OptimizationObjective& obj)
+    : d_objective(new internal::smt::OptimizationObjective(obj))
+{
+}
+Term OptimizationObjective::getTarget() const
+{
+  return Term(internal::NodeManager::currentNM(), d_objective->getTarget());
+}
+bool OptimizationObjective::bvIsSigned() const
+{
+  return d_objective->bvIsSigned();
+}
+bool OptimizationObjective::isMinimize() const
+{
+  return d_objective->getType()
+         == internal::smt::OptimizationObjective::MINIMIZE;
+}
+bool OptimizationObjective::isMaximize() const
+{
+  return d_objective->getType()
+         == internal::smt::OptimizationObjective::MAXIMIZE;
+}
+
+OptimizationResult::OptimizationResult() : d_result(nullptr) {}
+OptimizationResult::OptimizationResult(
+    const internal::smt::OptimizationResult& res)
+    : d_result(new internal::smt::OptimizationResult(res))
+{
+}
+Result OptimizationResult::getResult() const
+{
+  return Result(d_result->getResult());
+}
+Term OptimizationResult::getValue() const
+{
+  return Term(internal::NodeManager::currentNM(), d_result->getValue());
+}
+bool OptimizationResult::isPosInfinity() const
+{
+  return d_result->isPosInfinity();
+}
+bool OptimizationResult::isNegInfinity() const
+{
+  return d_result->isNegInfinity();
+}
+bool OptimizationResult::isPosApprox() const { return d_result->isPosApprox(); }
+bool OptimizationResult::isNegApprox() const { return d_result->isNegApprox(); }
+bool OptimizationResult::isFinite() const { return d_result->isFinite(); }
 
 const internal::Node& Term::getNode(void) const { return *d_node; }
 
@@ -6621,6 +6673,20 @@ std::string Solver::getObjectives()
   // CVC5_API_RECOVERABLE_CHECK(d_opt_slv->isSmtModeSat())
   //     << "Cannot get objevtive unless after a SAT or UNKNOWN response.";
   return d_opt_slv->getObjectives();
+  CVC5_API_TRY_CATCH_END;
+}
+std::vector<std::pair<OptimizationObjective, OptimizationResult>>
+Solver::getObjectiveResults()
+{
+  CVC5_API_TRY_CATCH_BEGIN;
+  auto const& results = d_opt_slv->getObjectiveResults();
+  std::vector<std::pair<OptimizationObjective, OptimizationResult>> ans;
+  ans.reserve(results.size());
+  for (auto const& res : d_opt_slv->getObjectiveResults())
+  {
+    ans.emplace_back(OptimizationObjective(res.first), OptimizationResult(res.second));
+  }
+  return ans;
   CVC5_API_TRY_CATCH_END;
 }
 

@@ -62,6 +62,8 @@ class SynthResult;
 class StatisticsRegistry;
 namespace smt{
   class OptimizationSolver; // anynomous author: optimization solver
+  class OptimizationObjective; // anynomous author: optimization objective
+  class OptimizationResult; // anynomous author: optimization result
 }
 }  // namespace internal
 
@@ -73,6 +75,8 @@ class Solver;
 class Statistics;
 struct APIStatistics;
 class Term;
+class OptimizationObjective;
+class OptimizationResult;
 
 /* -------------------------------------------------------------------------- */
 /* Exception                                                                  */
@@ -193,6 +197,7 @@ class CVC5_EXPORT CVC5ApiOptionException : public CVC5ApiRecoverableException
 class CVC5_EXPORT Result
 {
   friend class Solver;
+  friend class OptimizationResult;
 
  public:
   /** Constructor. */
@@ -1115,6 +1120,8 @@ class CVC5_EXPORT Term
   friend class Solver;
   friend class Grammar;
   friend class SynthResult;
+  friend class OptimizationObjective;
+  friend class OptimizationResult;
   friend struct std::hash<Term>;
 
  public:
@@ -1856,6 +1863,45 @@ template <typename V>
 std::ostream& operator<<(std::ostream& out,
                          const std::unordered_map<Term, V>& unordered_map)
     CVC5_EXPORT;
+
+/**
+ * A cvc5 optimization objective.
+ */
+class CVC5_EXPORT OptimizationObjective
+{
+  friend class Solver;
+ public:
+  OptimizationObjective();
+  Term getTarget() const;
+  bool bvIsSigned() const;
+  bool isMinimize() const;
+  bool isMaximize() const;
+
+ private:
+  OptimizationObjective(const internal::smt::OptimizationObjective& res);
+  std::shared_ptr<const internal::smt::OptimizationObjective> d_objective;
+};
+
+/**
+ * A cvc5 optimization result.
+ */
+class CVC5_EXPORT OptimizationResult
+{
+  friend class Solver;
+ public:
+  OptimizationResult();
+  Result getResult() const;
+  Term getValue() const;
+  bool isPosInfinity() const;
+  bool isNegInfinity() const;
+  bool isPosApprox() const;
+  bool isNegApprox() const;
+  bool isFinite() const;
+
+ private:
+  OptimizationResult(const internal::smt::OptimizationResult& res);
+  std::shared_ptr<const internal::smt::OptimizationResult> d_result;
+};
 
 }  // namespace cvc5
 
@@ -3973,6 +4019,7 @@ class CVC5_EXPORT Solver
   void maximizeFormula(const Term& term);
   void minimizeFormula(const Term& term);
   std::string getObjectives();
+  std::vector<std::pair<OptimizationObjective, OptimizationResult>> getObjectiveResults();
 
   /**
    * Check satisfiability.

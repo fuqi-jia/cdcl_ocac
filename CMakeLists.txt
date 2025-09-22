@@ -321,7 +321,7 @@ else()
   endif()
 endif()
 
-find_package(Python 3.6...3.10.999 COMPONENTS Interpreter REQUIRED)
+find_package(Python 3.6...3.13.999 COMPONENTS Interpreter REQUIRED)
 find_package(GMP 6.1 REQUIRED)
 
 if(ENABLE_ASAN)

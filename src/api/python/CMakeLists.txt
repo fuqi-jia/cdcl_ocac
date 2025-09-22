@@ -46,7 +46,7 @@ list(APPEND CMAKE_MODULE_PATH ${SKBUILD_CMAKE_MODULE_PATH})
 # 'PythonExtensions' is not yet compatible with cmake's new 'FindPython'.
 #     https://github.com/scikit-build/scikit-build/issues/506
 # We define the following symbols below to be backward compatible.
-find_package(Python 3.6...3.10.999 COMPONENTS Development)
+find_package(Python 3.6...3.13.999 COMPONENTS Development)
 
 # Since PythonExtensions still uses PythonInterp and PythonLibs, we have to
 # make sure that these modules find the same Python version that was found by

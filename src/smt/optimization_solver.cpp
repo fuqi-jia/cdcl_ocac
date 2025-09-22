@@ -437,6 +437,20 @@ std::string OptimizationSolver::getObjectives()
   ans += "\n)\n";
   return ans;
 }
+
+// anynomous author: get objective results
+std::vector<std::pair<OptimizationObjective, OptimizationResult>>
+OptimizationSolver::getObjectiveResults()
+{
+  std::vector<std::pair<OptimizationObjective, OptimizationResult>> ans;
+  ans.reserve(d_objectives.size());
+  for (size_t i = 0; i < d_objectives.size(); i++)
+  {
+    ans.emplace_back(d_objectives[i], d_results[i]);
+  }
+  return ans;
+}
+
 // anynomous author: check whether all objectives are not available
 bool OptimizationSolver::isSmtModeSat(){
   for(size_t i=0;i<d_results.size();i++){
