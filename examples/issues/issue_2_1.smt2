@@ -7,3 +7,6 @@
 (maximize obj)
 (check-sat)
 (get-objectives)
+(get-model)
+(get-value (yh))
+(get-value (yw))

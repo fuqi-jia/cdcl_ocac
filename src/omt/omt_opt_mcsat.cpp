@@ -53,6 +53,16 @@ OptimizationResult OMTOptimizerMCSAT::optimize(SolverEngine* optChecker,
   //  getBoundValue: return the bound value in the cell
   //  getOptimizedValue: return the optimized value in the cell
   //  missBound: whether the bound is checked.
+  if(target.isConst()){
+    std::cerr<<"Objective is a constant"<<std::endl;
+    d_optPreChecker = createOptPreChecker(optChecker);
+    d_optPreChecker->push();
+    Result intermediateSatResult;
+    intermediateSatResult = d_optPreChecker->checkSat();
+    d_optPreChecker->pop();
+    return OptimizationResult(intermediateSatResult, target);
+  }
+
   Node optimized_value;
   NodeManager* nm = NodeManager::currentNM();
   bool has_symba = false;
