@@ -247,7 +247,7 @@ void collect_monomials(const lp_polynomial_context_t* ctx,
   for (std::size_t i = 0; i < m->n; ++i)
   {
     // variable exponent pair
-    Node var = d->d_vm(m->p[i].x);
+    Node var = d->d_vm(poly::Variable(m->p[i].x));
     if (m->p[i].d > 1)
     {
       Node exp = d->d_nm->mkConstReal(m->p[i].d);

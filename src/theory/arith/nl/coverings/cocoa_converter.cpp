@@ -58,7 +58,7 @@ CoCoA::RingElem CoCoAConverter::operator()(const poly::Polynomial& q,
         for (size_t i = 0; i < m->n; ++i)
         {
           // variable exponent pair
-          CoCoA::RingElem var = d->d_state.d_varPC.at(m->p[i].x);
+          CoCoA::RingElem var = d->d_state.d_varPC.at(poly::Variable(m->p[i].x));
           re *= CoCoA::power(var, m->p[i].d);
         }
         d->d_result += re;

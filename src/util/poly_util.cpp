@@ -314,7 +314,7 @@ void getVariableInformation(VariableInformation& vi,
         for (std::size_t i = 0; i < m->n; ++i)
         {
           tdeg += m->p[i].d;
-          if (m->p[i].x == info->var)
+          if (poly::Variable(m->p[i].x) == info->var)
           {
             info->max_degree = std::max(info->max_degree, m->p[i].d);
             info->sum_term_degree += m->p[i].d;
